@@ -22,4 +22,6 @@ public class RegisterDto {
 
     @NotBlank(message = "Password should not be null or empty")
     private String password;
+
+    private String oldPassword;
 }
