@@ -45,7 +45,8 @@ CREATE TABLE `COMMENT` (`id` integer PRIMARY KEY AUTO_INCREMENT,
                         `updated_at` timestamp,
                         `updated_by` varchar(255));
 
-CREATE UNIQUE INDEX `USERS_INDEX` ON `USERS` (`email`);
+CREATE UNIQUE INDEX `USERS_EMAIL_INDEX` ON `USERS` (`email`);
+CREATE UNIQUE INDEX `USERS_NAME_INDEX` ON `USERS` (`name`);
 CREATE UNIQUE INDEX `ROLES_INDEX` ON `ROLES` (`name`);
 CREATE UNIQUE INDEX `TOPIC_INDEX` ON `TOPIC` (`reference`);
 CREATE UNIQUE INDEX `ARTICLE_INDEX` ON `ARTICLE` (`reference`);
