@@ -5,19 +5,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TopicDto {
+public class ArticleResponseDto {
 
-    private long topidId;
+    private long articleId;
 
     private String title;
 
     private String description;
 
-    private Set<UserDto> users;
+    private String topic;
+
+    private String author;
+
+    private String creationDate;
+
+    private List<CommentResponseDto> comments;
 }
