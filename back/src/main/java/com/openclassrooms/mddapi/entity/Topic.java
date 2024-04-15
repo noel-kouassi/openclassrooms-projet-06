@@ -39,6 +39,6 @@ public class Topic extends AbstractEntity {
     )
     private Set<User> users;
 
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL)
     private List<Article> articles;
 }

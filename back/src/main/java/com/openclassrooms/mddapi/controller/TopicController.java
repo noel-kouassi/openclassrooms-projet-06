@@ -53,7 +53,7 @@ public class TopicController {
      * @param login   the email or name of the subscriber
      * @return String message as response
      */
-    @PostMapping("/subscribe/{login}")
+    @PostMapping("/unsubscribe/{login}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<String> unsubscribeTopic(@RequestParam(value = "topicId") long topicId, @PathVariable(value = "login") String login) {
         topicService.unsubscribeTopic(login, topicId);

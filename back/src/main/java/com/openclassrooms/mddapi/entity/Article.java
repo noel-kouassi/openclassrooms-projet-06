@@ -33,6 +33,6 @@ public class Article extends AbstractEntity {
     @JoinColumn(name = "topic_id")
     private Topic topic;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<Comment> comments;
 }
