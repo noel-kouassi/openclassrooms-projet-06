@@ -42,12 +42,6 @@ public class User extends AbstractEntity {
     )
     private Set<Role> roles;
 
-    @Column(name = "created_by")
-    private String createdBy;
-
-    @Column(name = "updated_by")
-    private String updatedBy;
-
     @PrePersist
     public void onCreate() {
         this.createdBy = name;
