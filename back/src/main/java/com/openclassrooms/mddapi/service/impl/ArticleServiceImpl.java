@@ -10,21 +10,17 @@ import com.openclassrooms.mddapi.repository.ArticleRepository;
 import com.openclassrooms.mddapi.repository.TopicRepository;
 import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.service.ArticleService;
-import com.openclassrooms.mddapi.service.CommonService;
+import com.openclassrooms.mddapi.service.MapperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
 
-    private final CommonService commonService;
+    private final MapperService mapperService;
 
     private final ArticleRepository articleRepository;
 
@@ -33,8 +29,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final UserRepository userRepository;
 
     @Autowired
-    public ArticleServiceImpl(CommonService commonService, ArticleRepository articleRepository, TopicRepository topicRepository, UserRepository userRepository) {
-        this.commonService = commonService;
+    public ArticleServiceImpl(MapperService mapperService, ArticleRepository articleRepository, TopicRepository topicRepository, UserRepository userRepository) {
+        this.mapperService = mapperService;
         this.articleRepository = articleRepository;
         this.topicRepository = topicRepository;
         this.userRepository = userRepository;
@@ -42,10 +38,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void saveArticle(ArticleInputDto articleInputDto) {
-
         Topic topic = topicRepository.findById(articleInputDto.getTopicId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format(("Topic with id %s not found"), articleInputDto.getTopicId())));
-
         Article article = new Article();
         article.setTitle(articleInputDto.getTitle());
         article.setDescription(articleInputDto.getDescription());
@@ -55,16 +49,11 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<ArticleResponseDto> getArticlesByUser(String login) {
-
-        List<User> users = userRepository.findAll();
-        Map<String, User> mapUserByName = users.stream().collect(toMap(User::getName, identity()));
-        Map<String, User> mapUserByEmail = users.stream().collect(toMap(User::getEmail, identity()));
-
-        User user = commonService.findUserByLogin(login, mapUserByName, mapUserByEmail);
+        User user = userRepository.findByEmailOrName(login, login)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User not found with email or name %s", login)));
         Set<Topic> topics = user.getTopics();
-
         List<Article> articles = topics.stream().flatMap(topic -> topic.getArticles().stream()).toList();
-        return articles.stream().map(article -> commonService.constructArticleResponse(article, mapUserByName, mapUserByEmail)).toList();
+        return articles.stream().map(mapperService::constructArticleResponse).toList();
     }
 
 }
