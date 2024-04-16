@@ -10,19 +10,20 @@ import com.openclassrooms.mddapi.repository.ArticleRepository;
 import com.openclassrooms.mddapi.repository.CommentRepository;
 import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.service.CommentService;
-import org.modelmapper.ModelMapper;
+import com.openclassrooms.mddapi.service.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.openclassrooms.mddapi.util.DateFormatter.formatDate;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 @Service
 public class CommentServiceImpl implements CommentService {
+
+    private final CommonService commonService;
 
     private final CommentRepository commentRepository;
 
@@ -30,14 +31,12 @@ public class CommentServiceImpl implements CommentService {
 
     private final UserRepository userRepository;
 
-    private final ModelMapper modelMapper;
-
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository, ArticleRepository articleRepository, UserRepository userRepository, ModelMapper modelMapper) {
+    public CommentServiceImpl(CommonService commonService, CommentRepository commentRepository, ArticleRepository articleRepository, UserRepository userRepository) {
+        this.commonService = commonService;
         this.commentRepository = commentRepository;
         this.articleRepository = articleRepository;
         this.userRepository = userRepository;
-        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -62,21 +61,6 @@ public class CommentServiceImpl implements CommentService {
         Map<String, User> mapUserByEmail = users.stream().collect(toMap(User::getEmail, identity()));
 
         List<Comment> comments = article.getComments();
-        return comments.stream().map(comment -> constructComment(comment, mapUserByName, mapUserByEmail)).toList();
-    }
-
-    private CommentResponseDto constructComment(Comment comment, Map<String, User> mapUserByName, Map<String, User> mapUserByEmail) {
-
-        CommentResponseDto commentResponseDto = new CommentResponseDto();
-        commentResponseDto.setDescription(comment.getDescription());
-        commentResponseDto.setCreationDate(formatDate(comment.getCreatedAt()));
-        String authorLogin = comment.getCreatedBy();
-        if (mapUserByName.get(authorLogin) != null) {
-            commentResponseDto.setAuthor(mapUserByName.get(authorLogin).getName());
-        }
-        if (mapUserByEmail.get(authorLogin) != null) {
-            commentResponseDto.setAuthor(mapUserByEmail.get(authorLogin).getName());
-        }
-        return commentResponseDto;
+        return comments.stream().map(comment -> commonService.constructComment(comment, mapUserByName, mapUserByEmail)).toList();
     }
 }
