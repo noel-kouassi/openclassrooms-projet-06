@@ -33,7 +33,7 @@ public class Topic extends AbstractEntity {
     private String description;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "topic_user",
+    @JoinTable(name = "users_topic",
             joinColumns = @JoinColumn(name = "topic_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id")
     )

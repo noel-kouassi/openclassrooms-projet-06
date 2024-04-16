@@ -43,7 +43,7 @@ public class User extends AbstractEntity {
     private Set<Role> roles;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "topic_user",
+    @JoinTable(name = "users_topic",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "topic_id", referencedColumnName = "id")
     )

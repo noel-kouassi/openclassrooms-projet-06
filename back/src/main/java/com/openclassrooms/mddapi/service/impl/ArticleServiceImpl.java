@@ -17,7 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static com.openclassrooms.mddapi.util.DateFormatter.formatDate;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -46,7 +51,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         Article article = new Article();
         article.setTitle(articleInputDto.getTitle());
-        article.setDescription(article.getDescription());
+        article.setDescription(articleInputDto.getDescription());
         article.setTopic(topic);
         articleRepository.save(article);
     }
@@ -54,19 +59,46 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<ArticleResponseDto> getArticlesByUser(String login) {
 
+        List<User> users = userRepository.findAll();
+        Map<String, User> mapUserByName = users.stream().collect(toMap(User::getName, identity()));
+        Map<String, User> mapUserByEmail = users.stream().collect(toMap(User::getEmail, identity()));
+
         User user = userRepository.findByEmailOrName(login, login)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("User not found with login %s", login)));
         Set<Topic> topics = user.getTopics();
+
         List<Article> articles = topics.stream().flatMap(topic -> topic.getArticles().stream()).toList();
-        return articles.stream().map(this::constructArticleResponse).toList();
+        return articles.stream().map(article -> constructArticleResponse(article, mapUserByName, mapUserByEmail)).toList();
     }
 
-    private ArticleResponseDto constructArticleResponse(Article article) {
+    private ArticleResponseDto constructArticleResponse(Article article, Map<String, User> mapUserByName, Map<String, User> mapUserByEmail) {
+
+        User user = userRepository.findByEmailOrName(article.getCreatedBy(), article.getCreatedBy())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User not found with login %s", article.getCreatedBy())));
 
         ArticleResponseDto articleResponseDto = modelMapper.map(article, ArticleResponseDto.class);
+        String topic = article.getTopicTitle();
+
+        articleResponseDto.setTopic(topic);
+        articleResponseDto.setAuthor(user.getName());
+        articleResponseDto.setCreationDate(formatDate(article.getCreatedAt()));
+
         List<Comment> comments = article.getComments();
         if (!comments.isEmpty()) {
-            List<CommentResponseDto> commentResponseDtos = comments.stream().map(comment -> modelMapper.map(comment, CommentResponseDto.class)).toList();
+            List<CommentResponseDto> commentResponseDtos = comments.stream().map(comment -> {
+                CommentResponseDto commentResponseDto = new CommentResponseDto();
+                commentResponseDto.setDescription(comment.getDescription());
+                commentResponseDto.setCreationDate(formatDate(comment.getCreatedAt()));
+
+                String authorLogin = comment.getCreatedBy();
+                if (mapUserByName.get(authorLogin) != null) {
+                    commentResponseDto.setAuthor(mapUserByName.get(authorLogin).getName());
+                }
+                if (mapUserByEmail.get(authorLogin) != null) {
+                    commentResponseDto.setAuthor(mapUserByEmail.get(authorLogin).getName());
+                }
+                return commentResponseDto;
+            }).toList();
             articleResponseDto.setComments(commentResponseDtos);
         }
         return articleResponseDto;

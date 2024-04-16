@@ -83,6 +83,7 @@ public class TopicServiceImpl implements TopicService {
 
     private TopicDto constructTopic(Topic topic) {
         TopicDto topicDto = modelMapper.map(topic, TopicDto.class);
+        topicDto.setTopidId(topic.getId());
         Set<User> users = topic.getUsers();
         if (!users.isEmpty()) {
             Set<UserDto> userDtos = users.stream().map(user -> modelMapper.map(user, UserDto.class)).collect(toSet());

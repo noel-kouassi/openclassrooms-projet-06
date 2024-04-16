@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(RegisterDto registerDto, String emailOrName) {
+    public void updateUser(RegisterDto registerDto, String emailOrName) {
 
         User user = userRepository.findByEmailOrName(emailOrName, emailOrName)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format("User not found with email or name: %s", emailOrName)));
@@ -141,6 +141,6 @@ public class UserServiceImpl implements UserService {
                 throw new GlobalException(HttpStatus.BAD_REQUEST, "New password does not respect the security constraints");
             }
         }
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 }

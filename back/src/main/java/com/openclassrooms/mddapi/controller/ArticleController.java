@@ -43,7 +43,7 @@ public class ArticleController {
      * @param login name or email of the user to be used for article recuperation
      * @return List of ArticleResponseDto as message response
      */
-    @GetMapping("/articles/{login}")
+    @GetMapping("/{login}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<ArticleResponseDto>> getArticlesByUser(@PathVariable String login) {
         List<ArticleResponseDto> articleResponseDtos = articleService.getArticlesByUser(login);

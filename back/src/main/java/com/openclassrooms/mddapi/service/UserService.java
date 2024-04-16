@@ -10,7 +10,7 @@ public interface UserService {
 
     void saveUser(RegisterDto registerDto);
 
-    User updateUser(RegisterDto registerDto, String emailOrName);
+    void updateUser(RegisterDto registerDto, String emailOrName);
 
     String login(LoginDto loginDto);
 

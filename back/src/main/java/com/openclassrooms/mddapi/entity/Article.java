@@ -35,4 +35,8 @@ public class Article extends AbstractEntity {
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private List<Comment> comments;
+
+    public String getTopicTitle(){
+        return topic.getTitle();
+    }
 }
